@@ -1,5 +1,6 @@
 import client from "./client.js";
 import bcrypt from "bcrypt";
+import { faker } from "@faker-js/faker";
 
 const seed = async () => {
   try {
@@ -15,6 +16,23 @@ const seed = async () => {
       `,
       ["admin@fsu.edu", hashedPassword, "admin"],
     );
+
+    for (let i = 0; i < 10; i++) {
+      const name = faker.company.name() + " Department";
+      const description = faker.lorem.sentence();
+      const image = faker.image.urlPicsumPhotos();
+      const email = faker.internet.email();
+      const phone = faker.phone.number();
+      const office = "Building " + faker.number.int({ min: 100, max: 500 });
+
+      await client.query(
+        `
+    INSERT INTO departments (name, description, image_url, email, phone, office_location)
+    VALUES ($1,$2,$3,$4,$5,$6)
+    `,
+        [name, description, image, email, phone, office],
+      );
+    }
 
     await client.query(`
       INSERT INTO departments (name, description, image_url, email, phone, office_location)
@@ -44,7 +62,28 @@ const seed = async () => {
         'Science Building 305'
       );
     `);
+    for (let i = 0; i < 20; i++) {
+      const name = faker.person.fullName();
+      const bio = faker.lorem.paragraph();
+      const image = faker.image.avatar();
+      const email = faker.internet.email();
+      const phone = faker.phone.number();
+      const title = faker.helpers.arrayElement([
+        "Professor",
+        "Associate Professor",
+        "Assistant Professor",
+      ]);
 
+      const departmentId = faker.number.int({ min: 1, max: 3 });
+
+      await client.query(
+        `
+    INSERT INTO faculty (name, bio, profile_image_url, email, phone, title, department_id)
+    VALUES ($1,$2,$3,$4,$5,$6,$7)
+    `,
+        [name, bio, image, email, phone, title, departmentId],
+      );
+    }
     await client.query(`
       INSERT INTO faculty (name, bio, profile_image_url, email, phone, title, department_id)
       VALUES
